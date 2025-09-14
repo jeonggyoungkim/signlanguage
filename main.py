@@ -8,8 +8,24 @@ app = FastAPI()
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()  # 연결 허용
     while True:
-        data = await websocket.receive_text()   # 클라이언트에서 메시지 받기
-        print(f"클라이언트에서 받은 데이터: {data}")
+        try:
+            data = await websocket.receive_text()
+            parsed = json.loads(data)
 
-        # 클라이언트로 응답 보내기
-        await websocket.send_text(f"서버 응답: {data}")
+            # frame_id, sequence 길이 확인
+            frame_id = parsed["frame_id"]
+            seq_len = len(parsed["sequence"])
+
+            print(f"[서버] frame_id={frame_id}, sequence_len={seq_len}")
+
+            # 그대로 클라이언트로 돌려주기
+            await websocket.send_text(
+                json.dumps({
+                    "received_frame_id": frame_id,
+                    "received_seq_len": seq_len
+                })
+            )
+
+        except Exception as e:
+            print("에러 발생:", e)
+            break
