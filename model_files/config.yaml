@@ -1,0 +1,59 @@
+name: "multi_class_auto_classification"
+
+data:
+    # 자동 클래스 발견 모드 - 데이터 루트 디렉터리만 지정하면 됨
+    data_path: "data/optimized_output"
+    auto_discover: true
+    auto_generate_vocab: true
+    trg_vocab_file: "data/auto_generated_vocab.txt"
+    
+    feature_size: 274  # 137 keypoints * 2 (x, y)
+    batch_size: 32
+    max_sent_length: 200
+    level: "word"
+    train_files: 15  # 1에서 15로 복원
+    test_files: 3    # 1에서 3으로 복원
+
+model:
+    encoder:
+        type: "gru"
+        num_layers: 1
+        hidden_size: 220  # 파라미터 수 약 75만개 목표 (GRU)
+        dropout: 0.3
+        bidirectional: True
+    
+    embeddings:
+        embedding_dim: 440  # 파라미터 수 약 75만개 목표 (GRU)
+        scale: False
+        type: "spatial"
+
+training:
+    model_dir: "models/multi_class_auto" # _small_test 접미사 제거
+    overwrite: true
+    optimizer: "adam"
+    learning_rate: 0.001
+    weight_decay: 0.0001
+    batch_size: 64
+    epochs: 100 # 10에서 100으로 복원
+    validation_freq: 10 # 1에서 10으로 복원
+    logging_freq: 5 # 1에서 5로 복원
+    early_stopping_metric: "loss"
+    patience: 10
+    use_cuda: true
+    
+    # Scheduling
+    scheduling: "plateau"
+    patience: 8
+    decrease_factor: 0.7
+    min_lr: 0.00001
+
+testing:
+    beam_size: 1
+    alpha: 1.0
+
+logging:
+    model_dir: "models/multi_class_auto" # _small_test 접미사 제거
+    log_file: "models/multi_class_auto/train.log" # _small_test 접미사 제거
+    tb_log_dir: "models/multi_class_auto/tensorboard" # _small_test 접미사 제거
+    overwrite: True
+    log_level: "INFO" 
