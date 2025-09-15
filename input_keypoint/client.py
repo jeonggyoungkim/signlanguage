@@ -18,6 +18,7 @@ async def send_keypoints():
         mp_pose = mp.solutions.pose
         mp_hands = mp.solutions.hands
         mp_face = mp.solutions.face_mesh
+        mp_drawing = mp.solutions.drawing_utils
 
         cap = cv2.VideoCapture(0)
         cap.set(cv2.CAP_PROP_FPS, 30)  # FPS 30 설정
@@ -56,17 +57,42 @@ async def send_keypoints():
                     body25 = mediapipe_to_openpose_body25(pose_results, w, h, None)
                     body25 = np.nan_to_num(body25, nan=0.0)
 
+                     # 시각화
+                    mp_drawing.draw_landmarks(
+                        frame,
+                        pose_results.pose_landmarks,
+                        mp_pose.POSE_CONNECTIONS,
+                        mp_drawing.DrawingSpec(color=(0,255,0), thickness=2, circle_radius=2),
+                        mp_drawing.DrawingSpec(color=(0,0,255), thickness=2, circle_radius=2)
+                    )
+
                 # face landmark
                 if face_results.multi_face_landmarks is not None:
                     cnt += 1
                     openpose_face = mediapipe_to_openpose_face(face_results, w, h, None)
                     openpose_face = np.nan_to_num(openpose_face, nan=0.0)
 
+                    for face_landmarks in face_results.multi_face_landmarks:
+                        for lm in face_landmarks.landmark:
+                            x, y = int(lm.x * w), int(lm.y * h)
+                            cv2.circle(frame, (x, y), 1, (255, 0, 0), -1)
+
+
+
                 # hands landmark
                 if hands_results.multi_hand_landmarks is not None:
                     cnt += 1
                     openpose_hands = mediapipe_to_openpose_hand(hands_results, w, h, None)
                     openpose_hands = np.nan_to_num(openpose_hands, nan=0.0)
+
+                    for hand_landmarks in hands_results.multi_hand_landmarks:
+                        mp_drawing.draw_landmarks(
+                            frame,
+                            hand_landmarks,
+                            mp_hands.HAND_CONNECTIONS,
+                            mp_drawing.DrawingSpec(color=(0,255,0), thickness=2, circle_radius=2),
+                            mp_drawing.DrawingSpec(color=(0,128,255), thickness=2, circle_radius=2)
+                        )
 
                 if cnt == 3:
                     # 좌표 추출
