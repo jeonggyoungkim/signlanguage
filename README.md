@@ -1,3 +1,5 @@
+## 수어 모델 카메라 연결
+```
 KSLT/
 ├── main.py         
 ├── model_handler.py  
@@ -6,3 +8,4 @@ KSLT/
 ├── requirements.txt   
 └── model_files/
     └── trained_model.pth
+```
