@@ -114,6 +114,8 @@ async def send_keypoints():
 
                     # 1차원 배열
                     one_frame_keypoints = one_frame_keypoints.reshape(-1)
+                    # 디버깅 출력
+                    print("[DEBUG] one_frame_keypoints shape:", one_frame_keypoints.shape)
 
                     # 버퍼에 저장
                     buffer.append(one_frame_keypoints)
@@ -126,9 +128,11 @@ async def send_keypoints():
                         "frame_id": frame_id,
                         "sequence": sequence.tolist()
                     }
-
+                    
+                    print("[DEBUG] sending frame_id:", frame_id, "sequence shape:", sequence.shape) # 로그 테스트 
                     await websocket.send(json.dumps(data))
                     print(f"[클라이언트] 180프레임 전송 완료 (frame_id={frame_id})")
+                    print("[DEBUG] send success") # 로그 테스트 
 
                     # 서버 응답 (예측 결과)
                     response = await websocket.recv()
@@ -137,7 +141,7 @@ async def send_keypoints():
                     buffer = []  # 버퍼 초기화
                     frame_id += 1
 
-                cv2.imshow('Mediapipe Feed', frame)
+                cv2.imshow('camera test', frame)
                 if cv2.waitKey(10) & 0xFF == ord('q'):
                     break
 
